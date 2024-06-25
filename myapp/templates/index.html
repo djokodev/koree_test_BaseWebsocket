@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Client view</title>
+</head>
+<body>
+    <div id="chat-log">
+        
+    </div>
+    {{ room_name|json_script:"room-name" }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const chatSocket = new ReconnectingWebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data.message)
+            document.querySelector('#chat-log').innerHTML = "" 
+            data.message.forEach(element => {
+                document.querySelector('#chat-log').innerHTML += 
+                `
+                    <article>
+                        <p>Name: ${element.id}</p>
+                        <p>Name: ${element.name}</p>
+                        <p>Value: ${element.value}</p>
+                        <p>Created_at: ${element.created_at}</p>
+                        <p>Updated_at: ${element.updated_at}</p>
+                        <hr>
+                    </article>
+                `;
+            });
+           
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+    </script>
+</body>
+</html>
